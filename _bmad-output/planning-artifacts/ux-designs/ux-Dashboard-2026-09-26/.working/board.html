@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920">
+<title>Display Board | OPD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Key screen: /board (registered TV device, no shell, no sign-in). Static mock at 1920x1080.
+   Governing spine sections:
+   - DESIGN.md: colors board-background / board-foreground / board-muted / board-called;
+     typography board-now-serving (Mono 120/700), board-next (Mono 48/500), board-facility (40/500);
+     Layout & Spacing (Display Board: full-bleed 2x2 Facility grid, no shell); Components (Board tile);
+     Do's and Don'ts (fixed dark scheme, numbers only).
+   - EXPERIENCE.md: IA row "Display Board"; Component Patterns row Display Board tile;
+     Responsive row TV 1920x1080 (2x2, no cursor, never scrolls); Voice (no names on public surfaces);
+     Key Flows > Flow 2 step 2 and Flow 3 step 1.
+   Captured moment: AB-006 has just been called (tile in its 3-second board-called state). */
+:root{--bg:#0B1F26;--fg:#FFFFFF;--muted:#A9C3CA;--called:#FFD54F;--line:rgb(169 195 202/.22);--tile:#10303A}
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;cursor:none}
+body{background:var(--bg);color:var(--fg);font:400 24px/1.3 Roboto,system-ui,sans-serif;display:grid;grid-template-rows:72px 1fr 80px}
+.mono{font-family:"Roboto Mono",ui-monospace,monospace}
+.strip{display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--line)}
+.strip .h{font-size:28px;font-weight:500;display:flex;align-items:center;gap:14px}
+.strip .h svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.strip .clock{display:flex;align-items:baseline;gap:20px;color:var(--muted);font-size:24px}
+.strip .clock b{font:500 36px/1 "Roboto Mono",monospace;color:var(--fg)}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:24px;padding:24px 40px}
+.tile{background:var(--tile);border:1px solid var(--line);border-radius:6px;padding:28px 40px;display:flex;flex-direction:column}
+.fac{font-size:40px;font-weight:500;line-height:1.1;display:flex;justify-content:space-between;align-items:baseline}
+.fac .pfx{font:500 28px/1 "Roboto Mono",monospace;color:var(--muted)}
+.lbl{font-size:22px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+.now{font:700 120px/1 "Roboto Mono",monospace;letter-spacing:.02em;margin-top:6px}
+.next{margin-top:auto;border-top:1px solid var(--line);padding-top:18px;display:flex;align-items:center;gap:40px}
+.next .lbl{margin:0;min-width:96px}
+.next span.n{font:500 48px/1 "Roboto Mono",monospace}
+.tile.called{background:var(--called);border-color:var(--called);color:var(--bg)}
+.tile.called .fac .pfx,.tile.called .lbl{color:#3A4A2E;color:rgb(11 31 38/.78)}
+.tile.called .next{border-top-color:rgb(11 31 38/.25)}
+.calltag{display:inline-flex;align-items:center;gap:10px;background:var(--bg);color:var(--called);font-size:22px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:4px;margin-left:24px;vertical-align:middle}
+.calltag svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.foot{display:flex;align-items:center;justify-content:center;border-top:1px solid var(--line);font-size:32px;font-weight:500;color:var(--fg)}
+.foot span{color:var(--muted);font-weight:400;margin-left:16px}
+@media (prefers-reduced-motion:reduce){.tile.called{animation:none}}
+</style>
+</head>
+<body>
+  <div class="strip">
+    <div class="h"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8M8 12h8"/></svg>San Isidro District Hospital · Outpatient Department</div>
+    <div class="clock"><span>26 Sep 2026</span><b>9:22 AM</b></div>
+  </div>
+
+  <main class="grid" aria-label="Now serving">
+    <section class="tile">
+      <div class="fac">Prenatal<span class="pfx">PN</span></div>
+      <div class="lbl">Now serving</div>
+      <div class="now">PN-003</div>
+      <div class="next"><span class="lbl">Next</span><span class="n">PN-004</span><span class="n">PN-005</span></div>
+    </section>
+
+    <section class="tile called" aria-live="assertive">
+      <div class="fac"><span>Animal Bite Center<span class="calltag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Now calling</span></span><span class="pfx">AB</span></div>
+      <div class="lbl">Now serving</div>
+      <div class="now">AB-006</div>
+      <div class="next"><span class="lbl">Next</span><span class="n">AB-007</span><span class="n">AB-008</span><span class="n">AB-009</span></div>
+    </section>
+
+    <section class="tile">
+      <div class="fac">Treatment<span class="pfx">TR</span></div>
+      <div class="lbl">Now serving</div>
+      <div class="now">TR-010</div>
+      <div class="next"><span class="lbl">Next</span><span class="n">TR-011</span><span class="n">TR-012</span></div>
+    </section>
+
+    <section class="tile">
+      <div class="fac">Consultation<span class="pfx">CN</span></div>
+      <div class="lbl">Now serving</div>
+      <div class="now">CN-013</div>
+      <div class="next"><span class="lbl">Next</span><span class="n">CN-014</span><span class="n">CN-015</span><span class="n">CN-016</span></div>
+    </section>
+  </main>
+
+  <div class="foot">Please wait for your number</div>
+</body>
+</html>

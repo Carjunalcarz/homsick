@@ -1,0 +1,87 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 09-26-2026 20:00
+last_updated: 09-27-2026 00:18
+project: Dashboard
+project_key: NOKEY
+tracking_system: file-system
+story_location: D:\Developer\Dashboard\_bmad-output\implementation-artifacts
+development_status:
+  epic-1: done
+  epic-1-retrospective: optional
+
+  epic-2: in-progress
+  2-1-hospital-app-shell-replaces-the-store: done
+  2-2-first-admin-signs-in: review
+  2-3-idle-sign-out-and-account-lockout: review
+  2-4-admin-configures-opd-facilities: review
+  2-5-admin-manages-staff-accounts-and-roles: review
+  2-6-admin-configures-triage-and-clinical-settings: review
+  2-7-admin-reviews-the-audit-log: review
+  2-8-nightly-backup-and-scheduled-jobs: review
+  epic-2-retrospective: optional
+
+  epic-3: in-progress
+  3-1-find-patients: review
+  3-2-register-a-new-patient: review
+  3-3-view-and-update-a-patient-record: review
+  3-4-record-triage-for-a-visit: review
+  3-5-issue-a-queue-number-or-direct-to-the-er: review
+  3-6-print-the-queue-slip: in-progress
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-live-facility-queue: backlog
+  4-2-call-next-recall-and-start-serving: backlog
+  4-3-no-show-restore-and-calling-a-specific-patient: backlog
+  4-4-serve-and-complete-a-visit: backlog
+  4-5-animal-bite-center-and-prenatal-fields: backlog
+  4-6-refer-a-patient-to-another-facility: backlog
+  4-7-closing-time-and-daily-reset: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-register-display-screens: backlog
+  5-2-now-serving-display-board: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-doctors-and-departments-directory: backlog
+  6-2-doctor-duty-days: backlog
+  6-3-book-and-manage-appointments: backlog
+  6-4-check-in-appointments-and-mark-missed: backlog
+  6-5-book-a-follow-up-from-the-serving-panel: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-opd-overview: backlog
+  7-2-enter-paper-recorded-visits-after-an-outage: backlog
+  epic-7-retrospective: optional

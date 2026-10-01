@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Triage | OPD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Key screen: /triage (Triage Nurse). Static mock, light theme, 1440px desktop.
+   Governing spine sections:
+   - DESIGN.md: colors (primary, banner, success, abnormal, priority, routine), typography
+     (page-title, section-title, label, button, queue-number-issued), Layout & Spacing (shell,
+     Triage two-column), Components (Action buttons, Banner with tab, Queue Number chip,
+     Group badge, Vital Sign field).
+   - EXPERIENCE.md: IA row "Triage"; Component Patterns rows Patient finder, Triage form,
+     Issue confirmation; State Patterns row Abnormal Vital Sign; Interaction Primitives
+     (keyboard-first triage); Key Flows > Flow 1 steps 2-5.
+   State 1 = form filled before Ctrl+Enter. State 2 = issue confirmation (Flow 1 step 5). */
+:root{
+  --background:#ECF0F3;--foreground:#333A40;--card:#FFFFFF;--muted:#EEF1F4;--muted-foreground:#5B6770;
+  --border:#E3E7EB;--input:#C9D0D6;--band:#F7F7F7;--primary:#00798C;--primary-hover:#006373;
+  --banner:#00838F;--success:#2E7D32;--cta:#C2410C;--destructive:#C62828;
+  --urgent:#B91C1C;--priority:#6A1B9A;--routine:#5B6770;--abnormal:#B45309;
+  --r-sm:2px;--r-md:4px;--r-lg:6px;
+}
+*{box-sizing:border-box}
+body{margin:0;width:1440px;background:var(--background);color:var(--foreground);font:400 14px/1.5 Roboto,system-ui,sans-serif}
+.mono{font-family:"Roboto Mono",ui-monospace,monospace}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.s{width:16px;height:16px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* Shell */
+header.top{height:72px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:24px;padding:0 24px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;white-space:nowrap}
+.logo .mark{width:36px;height:36px;border-radius:var(--r-md);background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center}
+.hsearch{position:relative;width:256px}
+.hsearch svg{position:absolute;left:4px;top:50%;transform:translateY(-50%);color:var(--success)}
+.hsearch input{height:44px;width:100%;border:0;border-bottom:2px solid var(--success);background:transparent;padding:0 8px 0 28px;font:inherit;color:var(--foreground)}
+.hsearch input::placeholder{color:var(--muted-foreground)}
+nav.main{flex:1;display:flex;justify-content:center;align-self:stretch;gap:4px}
+nav.main a{position:relative;min-width:80px;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:var(--muted-foreground);text-decoration:none}
+nav.main a[aria-current]{color:var(--primary)}
+nav.main a[aria-current]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:2px;border-radius:9px;background:var(--primary)}
+.hright{display:flex;align-items:center;gap:8px}
+.iconbtn{width:44px;height:44px;border:0;background:transparent;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--muted-foreground)}
+.user{display:flex;align-items:center;gap:8px;border-left:1px solid var(--border);padding-left:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:500}
+.user b{display:block;font-weight:500;font-size:14px;line-height:1.2}
+.user small{display:block;font-size:12px;color:var(--muted-foreground)}
+.body{display:flex}
+aside.rail{width:96px;flex:none;background:var(--card);border-right:1px solid var(--border);padding:8px;min-height:calc(100vh - 72px)}
+aside.rail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+aside.rail a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:var(--r-md);text-align:center;font-size:12px;font-weight:500;line-height:1.25;color:var(--muted-foreground);text-decoration:none}
+aside.rail a[aria-current]{background:rgb(0 121 140/.1);color:var(--primary)}
+aside.rail .pfx{font-family:"Roboto Mono",monospace;font-size:11px;font-weight:600}
+aside.rail .cnt{margin-top:2px;font-size:11px;font-weight:500;background:var(--muted);color:var(--foreground);border-radius:9999px;padding:0 8px}
+main{flex:1;padding:32px}
+/* Generic */
+.card{background:var(--card);border-radius:var(--r-lg);box-shadow:0 1px 3px rgb(0 0 0/.06),0 0 0 1px rgb(0 0 0/.04)}
+.pad{padding:24px}
+h1{font-size:30px;font-weight:300;line-height:1.2;margin:0}
+h2{font-size:16px;font-weight:500;line-height:1.4;margin:0}
+.muted{color:var(--muted-foreground)}
+.btn{height:44px;border-radius:var(--r-md);border:1px solid transparent;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 14px/1 Roboto,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff}
+.btn-success{background:var(--success)}
+.btn-primary{background:var(--primary)}
+.btn-outline{background:var(--card);border-color:var(--input);color:var(--foreground);text-transform:none;letter-spacing:0;font-weight:500}
+.btn-ghost{background:transparent;color:var(--primary);text-transform:none;letter-spacing:0;font-weight:500}
+.focus{outline:2px solid var(--primary);outline-offset:3px}
+kbd{font:500 11px/1 "Roboto Mono",monospace;border:1px solid var(--input);border-bottom-width:2px;border-radius:var(--r-sm);padding:2px 5px;background:var(--card);color:var(--muted-foreground)}
+.btn kbd{background:transparent;color:inherit;border-color:currentColor;opacity:.85}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:9999px;padding:2px 10px;font-size:12px;font-weight:500;line-height:18px;white-space:nowrap}
+.g-priority{color:var(--priority);border:1px solid var(--priority)}
+.g-routine{color:var(--routine);border:1px solid var(--border)}
+.status{background:var(--muted);color:var(--foreground)}
+.chip{font-family:"Roboto Mono",monospace;background:var(--muted);border-radius:var(--r-md);padding:2px 8px;font-weight:600}
+/* Page */
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:24px;align-items:start}
+.tabs{display:inline-flex;background:var(--muted);border-radius:var(--r-md);padding:3px;margin-bottom:16px}
+.tabs span{padding:8px 14px;border-radius:var(--r-sm);font-weight:500;color:var(--muted-foreground)}
+.tabs span[aria-selected=true]{background:var(--card);color:var(--foreground);box-shadow:0 1px 2px rgb(0 0 0/.08)}
+.field label,.flabel{display:block;font-weight:500;margin-bottom:6px}
+.input{height:44px;border:1px solid var(--input);border-radius:var(--r-md);background:var(--card);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--foreground)}
+.input.focused{border-color:var(--primary);box-shadow:0 0 0 3px rgb(0 121 140/.2)}
+.results{list-style:none;margin:8px 0 0;padding:4px;border:1px solid var(--border);border-radius:var(--r-md)}
+.results li{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:var(--r-sm)}
+.results li[aria-selected=true]{background:rgb(0 121 140/.08);box-shadow:inset 3px 0 0 var(--primary)}
+.results .nm{font-weight:500}
+.results .meta{font-size:13px;color:var(--muted-foreground)}
+.results .new{color:var(--primary);font-weight:500;border-top:1px solid var(--border);margin-top:4px;border-radius:0}
+.hint{font-size:12px;color:var(--muted-foreground);margin-top:8px;display:flex;gap:12px}
+.band{background:var(--band);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 24px;font-weight:500}
+.dl{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;margin:0}
+.dl dt{color:var(--muted-foreground)}
+.dl dd{margin:0}
+.sect{padding:20px 24px;border-top:1px solid var(--border)}
+.sect:first-of-type{border-top:0}
+.sect h3{font-size:14px;font-weight:500;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.step{font:600 11px/1 "Roboto Mono",monospace;color:var(--muted-foreground);border:1px solid var(--border);border-radius:9999px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+textarea.input{height:64px;padding:10px 12px;width:100%;font:inherit;resize:none;display:block}
+.vitals{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.vf .input{justify-content:space-between}
+.vf .unit{color:var(--muted-foreground);font-size:13px}
+.vf.abn .input{border-color:var(--abnormal);border-width:2px;padding:0 11px}
+.vf.abn .val{color:var(--abnormal);font-weight:500}
+.vf .msg{display:flex;gap:6px;align-items:flex-start;color:var(--abnormal);font-size:12px;margin-top:6px;line-height:1.35}
+.seg{display:inline-flex;border:1px solid var(--input);border-radius:var(--r-md);overflow:hidden}
+.seg span{height:42px;display:flex;align-items:center;gap:8px;padding:0 16px;border-left:1px solid var(--input);font-weight:500;background:var(--card)}
+.seg span:first-child{border-left:0}
+.seg span[aria-checked=true]{background:var(--primary);color:#fff}
+.seg span[aria-checked=true] kbd{color:#fff;border-color:#fff;background:transparent}
+a{color:inherit;text-decoration:none}
+.seg-note{font-size:12px;color:var(--muted-foreground);margin-top:6px}
+.idnote{display:flex;align-items:center;gap:16px;margin-top:10px;font-size:13px}
+.idnote .ok{display:inline-flex;align-items:center;gap:6px;color:var(--positive,#047857);font-weight:500}
+.chk{display:inline-flex;align-items:center;gap:8px;color:var(--muted-foreground)}
+.chk i{width:16px;height:16px;border:1px solid var(--input);border-radius:var(--r-sm);display:inline-block}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{border:1px solid var(--input);border-radius:var(--r-lg);padding:14px;min-height:104px;display:flex;flex-direction:column;gap:6px;position:relative}
+.tile .t{display:flex;align-items:center;gap:8px;font-weight:500}
+.tile .pfx{font:600 12px/1 "Roboto Mono",monospace;color:var(--muted-foreground)}
+.tile .w{margin-top:auto;font-size:13px;color:var(--muted-foreground)}
+.tile .w b{font-size:20px;color:var(--foreground);font-weight:500}
+.tile[aria-checked=true]{border:2px solid var(--primary);padding:13px;background:rgb(0 121 140/.06)}
+.tile[aria-checked=true] .t{color:var(--primary)}
+.tile .sel{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center}
+.tile .sel svg{width:14px;height:14px;stroke-width:3}
+.formfoot{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--band);border-top:1px solid var(--border);border-radius:0 0 var(--r-lg) var(--r-lg)}
+.divider{margin:48px 0 24px;display:flex;align-items:center;gap:16px;color:var(--muted-foreground);font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+.divider::before,.divider::after{content:"";flex:1;border-top:2px dashed var(--input)}
+/* Issue confirmation */
+.banner{background:var(--banner);color:#fff;padding:28px 32px 44px;position:relative;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.banner .lbl{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;opacity:.95}
+.banner .num{font:700 64px/1 "Roboto Mono",monospace;margin:8px 0 10px;letter-spacing:.02em}
+.banner .sub{font-size:18px;font-weight:400}
+.banner .tab{position:absolute;left:32px;bottom:0;background:var(--card);color:var(--foreground);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:8px 18px 6px;font-weight:500;font-size:13px}
+.confirm-actions{display:flex;align-items:center;gap:12px;padding:24px 32px}
+.summary{padding:0 32px 24px;display:flex;gap:24px;flex-wrap:wrap;color:var(--muted-foreground);font-size:13px}
+.summary b{color:var(--foreground);font-weight:500}
+.statelbl{display:inline-block;font-size:12px;font-weight:500;color:var(--muted-foreground);margin-bottom:8px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-plus-sq" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-overview" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="i-steth" viewBox="0 0 24 24"><path d="M11 2v2M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+  <symbol id="i-contact" viewBox="0 0 24 24"><path d="M16 2v2M8 2v2"/><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><circle cx="12" cy="11" r="3"/><rect x="3" y="4" width="18" height="18" rx="2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-baby" viewBox="0 0 24 24"><path d="M9 12h.01M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></symbol>
+  <symbol id="i-bandage" viewBox="0 0 24 24"><path d="M10 10.01h.01M10 14.01h.01M14 10.01h.01M14 14.01h.01M18 6v11.5M6 6v12"/><rect x="2" y="6" width="20" height="12" rx="2"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></symbol>
+  <symbol id="i-alert-tri" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-senior" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+  <symbol id="i-access" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1"/><path d="m18 19 1-7-6 1M5 8l3-3 5.5 3-2.36 3.5"/><path d="M4.24 14.5a5 5 0 0 0 6.88 6M13.76 17.5a5 5 0 0 0-6.88-6"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-.9c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-userplus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 13h4M10 17h4"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+</svg>
+
+<header class="top">
+  <a class="logo" href="#" aria-label="OPD overview"><span class="mark"><svg class="i"><use href="#i-plus-sq"/></svg></span>San Isidro District Hospital · OPD</a>
+  <div class="hsearch"><svg class="i s"><use href="#i-search"/></svg><input type="search" placeholder="Search patients..." aria-label="Search patients"></div>
+  <!-- Triage Nurse: Queues is hidden (IA: Facility Queue roles are Facility Staff, Admin). -->
+  <nav class="main" aria-label="Main">
+    <a href="#"><svg class="i"><use href="#i-overview"/></svg>Overview</a>
+    <a href="#" aria-current="page"><svg class="i"><use href="#i-steth"/></svg>Triage</a>
+    <a href="#"><svg class="i"><use href="#i-users"/></svg>Patients</a>
+    <a href="#"><svg class="i"><use href="#i-cal"/></svg>Appointments</a>
+    <a href="#"><svg class="i"><use href="#i-contact"/></svg>Directory</a>
+  </nav>
+  <div class="hright">
+    <button class="iconbtn" aria-label="Switch to dark theme"><svg class="i"><use href="#i-moon"/></svg></button>
+    <div class="user"><span class="avatar" aria-hidden="true">LS</span><span><b>Liza Soriano</b><small>Triage Nurse</small></span></div>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="rail" aria-label="Facilities">
+    <ul>
+      <li><a href="#"><svg class="i"><use href="#i-baby"/></svg><span class="pfx">PN</span>Prenatal<span class="cnt">3 waiting</span></a></li>
+      <li><a href="#"><svg class="i"><use href="#i-paw"/></svg><span class="pfx">AB</span>Animal Bite Center<span class="cnt">4 waiting</span></a></li>
+      <li><a href="#"><svg class="i"><use href="#i-bandage"/></svg><span class="pfx">TR</span>Treatment<span class="cnt">2 waiting</span></a></li>
+      <li><a href="#"><svg class="i"><use href="#i-steth"/></svg><span class="pfx">CN</span>Consultation<span class="cnt">9 waiting</span></a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <div class="pagehead">
+      <div><span class="statelbl">State 1 · Triage form filled, before <kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><h1>Triage</h1></div>
+      <a class="btn btn-ghost" href="#"><svg class="i s"><use href="#i-clip"/></svg>Enter paper visit</a>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: patient -->
+      <section class="card" aria-label="Patient">
+        <div class="pad" style="padding-bottom:16px">
+          <div class="tabs" role="tablist"><span role="tab" aria-selected="true">Find patient</span><span role="tab" aria-selected="false">Today's appointments (5)</span></div>
+          <div class="field">
+            <label for="finder">Patient</label>
+            <div class="input" id="finder"><svg class="i s muted"><use href="#i-search"/></svg><span>carmen 1958</span></div>
+          </div>
+          <ul class="results" role="listbox" aria-label="2 matches">
+            <li role="option" aria-selected="false">
+              <div style="flex:1"><div class="nm">Lola Carmen</div><div class="meta">68 · F · <span class="mono">HN-2024-000977</span> · Brgy. Poblacion</div><div class="meta">Last visit 2025-12-02 · Treatment</div></div>
+            </li>
+            <li role="option" aria-selected="true">
+              <div style="flex:1"><div class="nm">Lola Carmen</div><div class="meta">68 · F · <span class="mono">HN-2026-000142</span> · Brgy. San Isidro</div><div class="meta">Last visit 2026-08-14 · Consultation</div></div>
+              <svg class="i s" style="color:var(--primary);margin-top:3px"><use href="#i-check"/></svg>
+            </li>
+            <li role="option" class="new"><svg class="i s"><use href="#i-userplus"/></svg>New patient</li>
+          </ul>
+          <div class="hint"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>Enter</kbd> select</span><span><kbd>Esc</kbd> clear</span></div>
+        </div>
+        <div class="band">Selected patient</div>
+        <div class="pad">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div><div style="font-size:20px;font-weight:500">Lola Carmen</div><div class="muted">68 · Female · <span class="mono" style="color:var(--foreground)">HN-2026-000142</span></div></div>
+            <span class="pill g-priority"><svg class="i s"><use href="#i-senior"/></svg>Senior</span>
+          </div>
+          <dl class="dl">
+            <dt>Birthdate</dt><dd>1958-03-14</dd>
+            <dt>Address</dt><dd>Purok 3, Brgy. San Isidro</dd>
+            <dt>Phone</dt><dd>0917 555 0142</dd>
+            <dt>Senior ID</dt><dd>On file</dd>
+          </dl>
+        </div>
+        <div class="band">Last visit</div>
+        <div class="pad">
+          <dl class="dl">
+            <dt>Date</dt><dd>2026-08-14</dd>
+            <dt>Facility</dt><dd>Consultation · <span class="mono">CN-022</span></dd>
+            <dt>Complaint</dt><dd>Cough, 5 days</dd>
+            <dt>Outcome</dt><dd><span class="pill status">Completed</span></dd>
+          </dl>
+          <a href="#" class="btn btn-ghost" style="padding:0;margin-top:12px"><svg class="i s"><use href="#i-file"/></svg>Open record</a>
+        </div>
+      </section>
+
+      <!-- RIGHT: triage form -->
+      <section class="card" aria-label="Triage form">
+        <div class="pad" style="padding-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <h2>Triage · Lola Carmen</h2><span class="muted" style="font-size:12px">Visit 2026-09-26 · 8:11 AM</span>
+        </div>
+        <div class="sect">
+          <h3><span class="step">1</span>Chief Complaint</h3>
+          <textarea class="input" aria-label="Chief Complaint">fever 3 days</textarea>
+        </div>
+        <div class="sect">
+          <h3><span class="step">2</span>Vital Signs</h3>
+          <div class="vitals">
+            <div class="vf abn">
+              <label class="flabel" for="temp">Temperature</label>
+              <div class="input" id="temp" aria-invalid="false" aria-describedby="temp-hint"><span style="display:flex;gap:8px;align-items:center"><svg class="i s" style="color:var(--abnormal)" aria-hidden="true"><use href="#i-alert-tri"/></svg><span class="val">39.2</span></span><span class="unit">°C</span></div>
+              <div class="msg" id="temp-hint"><svg class="i s" aria-hidden="true"><use href="#i-thermo"/></svg><span>Above normal (37.5 °C max)</span></div>
+            </div>
+            <div class="vf"><label class="flabel">Blood pressure</label><div class="input"><span>130 / 80</span><span class="unit">mmHg</span></div></div>
+            <div class="vf"><label class="flabel">Pulse</label><div class="input"><span>96</span><span class="unit">bpm</span></div></div>
+            <div class="vf"><label class="flabel">Respiratory rate</label><div class="input"><span>20</span><span class="unit">/min</span></div></div>
+            <div class="vf"><label class="flabel">SpO₂</label><div class="input"><span>97</span><span class="unit">%</span></div></div>
+            <div class="vf"><label class="flabel">Weight</label><div class="input"><span>54</span><span class="unit">kg</span></div></div>
+          </div>
+        </div>
+        <div class="sect">
+          <h3><span class="step">3</span>Urgency Level</h3>
+          <div class="seg" role="radiogroup" aria-label="Urgency Level">
+            <span role="radio" aria-checked="true"><kbd>1</kbd>Routine</span>
+            <span role="radio" aria-checked="false"><kbd>2</kbd>Urgent</span>
+            <span role="radio" aria-checked="false"><kbd>3</kbd>Emergency · to ER</span>
+          </div>
+          <div class="seg-note">Emergency changes the main button to Direct to ER.</div>
+        </div>
+        <div class="sect">
+          <h3><span class="step">4</span>Priority Category <span class="muted" style="font-weight:400">(optional)</span></h3>
+          <div class="seg" role="radiogroup" aria-label="Priority Category">
+            <span role="radio" aria-checked="false">None</span>
+            <span role="radio" aria-checked="true"><svg class="i s"><use href="#i-senior"/></svg>Senior Citizen</span>
+            <span role="radio" aria-checked="false"><svg class="i s"><use href="#i-access"/></svg>PWD</span>
+            <span role="radio" aria-checked="false"><svg class="i s"><use href="#i-heart"/></svg>Pregnant</span>
+          </div>
+          <div class="idnote">
+            <span class="ok" style="color:#047857"><svg class="i s"><use href="#i-shield"/></svg>Senior Citizen ID on file</span>
+            <span class="chk"><i aria-hidden="true"></i>Senior Citizen ID not presented</span>
+          </div>
+        </div>
+        <div class="sect">
+          <h3><span class="step">5</span>Facility</h3>
+          <div class="tiles" role="radiogroup" aria-label="Facility">
+            <div class="tile" role="radio" aria-checked="false"><div class="t"><svg class="i"><use href="#i-baby"/></svg>Prenatal</div><span class="pfx">PN</span><div class="w"><b>3</b> waiting</div></div>
+            <div class="tile" role="radio" aria-checked="false"><div class="t"><svg class="i"><use href="#i-paw"/></svg>Animal Bite Center</div><span class="pfx">AB</span><div class="w"><b>4</b> waiting</div></div>
+            <div class="tile" role="radio" aria-checked="false"><div class="t"><svg class="i"><use href="#i-bandage"/></svg>Treatment</div><span class="pfx">TR</span><div class="w"><b>2</b> waiting</div></div>
+            <div class="tile" role="radio" aria-checked="true"><span class="sel"><svg class="i"><use href="#i-check"/></svg></span><div class="t"><svg class="i"><use href="#i-steth"/></svg>Consultation</div><span class="pfx">CN</span><div class="w"><b>9</b> waiting</div></div>
+          </div>
+        </div>
+        <div class="formfoot">
+          <span class="muted" style="font-size:13px">Abnormal values are saved with a flag.</span>
+          <button class="btn btn-success">Issue queue number <kbd>Ctrl+Enter</kbd></button>
+        </div>
+      </section>
+    </div>
+
+    <!-- STATE 2 -->
+    <div class="divider">State 2 · Issue confirmation (after Ctrl+Enter)</div>
+    <div class="pagehead"><h1>Triage</h1></div>
+    <div class="grid">
+      <section class="card" aria-label="Patient" style="opacity:1">
+        <div class="pad">
+          <div class="muted" style="font-size:12px;font-weight:500;margin-bottom:8px">Patient</div>
+          <div style="font-size:20px;font-weight:500">Lola Carmen</div>
+          <div class="muted">68 · Female · <span class="mono" style="color:var(--foreground)">HN-2026-000142</span></div>
+        </div>
+        <div class="band">Triage recorded</div>
+        <div class="pad">
+          <dl class="dl">
+            <dt>Complaint</dt><dd>fever 3 days</dd>
+            <dt>Temperature</dt><dd style="color:var(--abnormal);display:flex;gap:6px;align-items:center"><svg class="i s"><use href="#i-alert-tri"/></svg>39.2 °C · above normal</dd>
+            <dt>Urgency</dt><dd>Routine</dd>
+            <dt>Priority</dt><dd><span class="pill g-priority"><svg class="i s"><use href="#i-senior"/></svg>Senior</span></dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card" aria-live="polite" aria-label="Queue number issued">
+        <div class="banner">
+          <div class="lbl">Queue number issued</div>
+          <div class="num">CN-014</div>
+          <div class="sub">Consultation · 2 ahead (priority)</div>
+          <div class="tab">Queue slip</div>
+        </div>
+        <div class="confirm-actions">
+          <button class="btn btn-primary focus"><svg class="i s"><use href="#i-printer"/></svg>Print slip <kbd>Enter</kbd></button>
+          <button class="btn btn-outline">Next patient <kbd>Esc</kbd></button>
+        </div>
+        <div class="summary">
+          <span>Issued <b>8:12 AM</b></span>
+          <span>Facility <b>Consultation</b></span>
+          <span>Slip shows number, Facility, date and time only</span>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

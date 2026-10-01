@@ -1,0 +1,332 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Dark mode is driven by the `.dark` class that next-themes puts on <html>. */
+@custom-variant dark (&:is(.dark *));
+
+/* Variants used by shadcn/ui components. Copied from `shadcn/tailwind.css`
+   so the shadcn CLI does not have to be installed as a runtime dependency. */
+@custom-variant data-open {
+  &:where([data-state="open"]),
+  &:where([data-open]:not([data-open="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-closed {
+  &:where([data-state="closed"]),
+  &:where([data-closed]:not([data-closed="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-checked {
+  &:where([data-state="checked"]),
+  &:where([data-checked]:not([data-checked="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-unchecked {
+  &:where([data-state="unchecked"]),
+  &:where([data-unchecked]:not([data-unchecked="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-selected {
+  &:where([data-selected="true"]) {
+    @slot;
+  }
+}
+
+@custom-variant data-disabled {
+  &:where([data-disabled="true"]),
+  &:where([data-disabled]:not([data-disabled="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-active {
+  &:where([data-state="active"]),
+  &:where([data-active]:not([data-active="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-horizontal {
+  &:where([data-orientation="horizontal"]) {
+    @slot;
+  }
+}
+
+@custom-variant data-vertical {
+  &:where([data-orientation="vertical"]) {
+    @slot;
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Typography roles from DESIGN.md: Roboto Mono for Queue Numbers, Roboto for
+   Facility names on the Display Board. */
+@utility text-queue-number {
+  font-family: var(--font-roboto-mono), ui-monospace, monospace;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility text-queue-number-issued {
+  font-family: var(--font-roboto-mono), ui-monospace, monospace;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility text-board-now-serving {
+  font-family: var(--font-roboto-mono), ui-monospace, monospace;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility text-board-next {
+  font-family: var(--font-roboto-mono), ui-monospace, monospace;
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility text-board-facility {
+  font-family: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+/* Design tokens: flat admin look taken from the reference screenshot
+   (light gray page, white cards, cyan brand, green and orange actions),
+   mapped onto shadcn/ui token names. The screenshot's own cyan (#00bcd2),
+   green (#5abd62) and orange (#e56208) fail WCAG AA with white text
+   (2.3, 2.4 and 3.5:1), so deeper shades of the same hues are used.
+   Every text pair below is at least 4.5:1. */
+:root {
+  --radius: 0.25rem;
+
+  --background: #ecf0f3; /* page gray */
+  --foreground: #333a40;
+  --card: #ffffff;
+  --card-foreground: #333a40;
+  --popover: #ffffff;
+  --popover-foreground: #333a40;
+  --primary: #00798c; /* brand cyan, 5.1:1 with white */
+  --primary-hover: #006373;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f7f7;
+  --secondary-foreground: #333a40;
+  --muted: #eef1f4; /* surface for skeletons and hovers */
+  --muted-foreground: #5b6770; /* secondary text, 5.1:1 on the page */
+  --accent: #eef1f4;
+  --accent-foreground: #2d3339;
+  --destructive: #c62828;
+  --border: #e3e7eb;
+  --input: #c9d0d6;
+  --ring: #00798c;
+
+  --band: #f7f7f7; /* gray section band inside cards */
+  --banner: #00838f; /* cyan highlight banner, 4.5:1 with white */
+  --banner-foreground: #ffffff;
+  --success: #2e7d32; /* green action buttons, 5.1:1 with white */
+  --success-hover: #256628;
+  --success-foreground: #ffffff;
+  --cta: #c2410c; /* orange call to action, 5.2:1 with white */
+  --cta-hover: #a3370a;
+  --cta-foreground: #ffffff;
+  --search-accent: #2e7d32; /* green underline under the header search */
+
+  --positive: #047857;
+  --negative: #b91c1c;
+  --warning: #92400e;
+
+  /* Clinical and queue semantics (DESIGN.md). Text and icon colors on card
+     or band, at least 4.5:1; always paired with a text label and an icon. */
+  --urgent: #b91c1c;
+  --priority: #6a1b9a;
+  --routine: #5b6770;
+  --abnormal: #b45309;
+
+  /* Display Board: one fixed dark scheme that ignores the staff theme, so it
+     is repeated unchanged under .dark. */
+  --board-background: #0b1f26;
+  --board-foreground: #ffffff;
+  --board-muted: #a9c3ca;
+  --board-called: #ffd54f;
+  --board-called-foreground: #0b1f26;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #333a40;
+  --sidebar-primary: #00798c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1f4;
+  --sidebar-accent-foreground: #2d3339;
+  --sidebar-border: #e3e7eb;
+  --sidebar-ring: #00798c;
+}
+
+.dark {
+  --background: #111820;
+  --foreground: #e6ebef;
+  --card: #1a232d;
+  --card-foreground: #e6ebef;
+  --popover: #1a232d;
+  --popover-foreground: #e6ebef;
+  --primary: #4dd0e1;
+  --primary-hover: #80deea;
+  --primary-foreground: #111820;
+  --secondary: #222d38;
+  --secondary-foreground: #e6ebef;
+  --muted: #222d38;
+  --muted-foreground: #9aa8b4;
+  --accent: #222d38;
+  --accent-foreground: #e6ebef;
+  --destructive: #ef9a9a;
+  --border: #2c3845;
+  --input: #3a4856;
+  --ring: #4dd0e1;
+
+  --band: #1f2933;
+  --banner: #00838f;
+  --banner-foreground: #ffffff;
+  --success: #81c784;
+  --success-hover: #a5d6a7;
+  --success-foreground: #111820;
+  --cta: #fb8c3c;
+  --cta-hover: #ffa866;
+  --cta-foreground: #111820;
+  --search-accent: #81c784;
+
+  --positive: #34d399;
+  --negative: #f87171;
+  --warning: #fbbf24;
+
+  --urgent: #f87171;
+  --priority: #ce93d8;
+  --routine: #9aa8b4;
+  --abnormal: #fbbf24;
+
+  --board-background: #0b1f26;
+  --board-foreground: #ffffff;
+  --board-muted: #a9c3ca;
+  --board-called: #ffd54f;
+  --board-called-foreground: #0b1f26;
+
+  --sidebar: #1a232d;
+  --sidebar-foreground: #e6ebef;
+  --sidebar-primary: #4dd0e1;
+  --sidebar-primary-foreground: #111820;
+  --sidebar-accent: #222d38;
+  --sidebar-accent-foreground: #e6ebef;
+  --sidebar-border: #2c3845;
+  --sidebar-ring: #4dd0e1;
+}
+
+@theme inline {
+  --font-sans: var(--font-roboto);
+  --font-mono: var(--font-roboto-mono);
+  --font-heading: var(--font-roboto);
+
+  --color-band: var(--band);
+  --color-banner: var(--banner);
+  --color-banner-foreground: var(--banner-foreground);
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-success-foreground: var(--success-foreground);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-search-accent: var(--search-accent);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning: var(--warning);
+  --color-urgent: var(--urgent);
+  --color-priority: var(--priority);
+  --color-routine: var(--routine);
+  --color-abnormal: var(--abnormal);
+  --color-board-background: var(--board-background);
+  --color-board-foreground: var(--board-foreground);
+  --color-board-muted: var(--board-muted);
+  --color-board-called: var(--board-called);
+  --color-board-called-foreground: var(--board-called-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
